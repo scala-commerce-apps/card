@@ -14,6 +14,13 @@
   html, body { margin: 0; background: #0d0d0d; color: #fff; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; }
   main { min-height: 100svh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; }
   .card { background: #fff; color: #111; border-radius: 20px; padding: 24px; width: min(360px, 100%); text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  /* Marca de la tienda (?b=usad): logo arriba y doble línea de color alrededor de la tarjeta */
+  .card.brand { border: 4px solid var(--c1, #EF3118); box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--c2, #0A3161), 0 14px 44px rgba(0,0,0,.55); }
+  .logo { display: none; height: 84px; margin: 0 auto 6px; }
+  .card.brand .logo { display: block; }
+  .card.brand .kicker { color: var(--c2, #0A3161); }
+  .card.brand h1 { color: var(--c1, #EF3118); }
+  .card.brand #qr { padding: 10px; border: 2px solid var(--c2, #0A3161); border-radius: 12px; box-sizing: content-box; }
   .kicker { margin: 0; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #666; }
   h1 { margin: 6px 0 16px; font-size: 22px; }
   #qr { width: 240px; height: 240px; margin: 0 auto; }
@@ -27,6 +34,7 @@
 <body>
 <main>
   <section class="card" id="card" hidden>
+    <img class="logo" id="logo" alt="">
     <p class="kicker">Carné de miembro</p>
     <h1 id="store">Miembro</h1>
     <div id="qr"></div>
@@ -43,6 +51,10 @@
     var p = new URLSearchParams(location.search);
     var id = (p.get("c") || "").replace(/\D/g, "");
     var store = p.get("s") || "";
+    // Marcas conocidas: logo + colores del borde. Se activa con ?b=<clave> o por el nombre de la tienda.
+    var BRANDS = { usad: { match: /usa distributors/i, logo: "brands/usad/logo.svg", c1: "#EF3118", c2: "#0A3161" } };
+    var b = BRANDS[p.get("b") || ""] || Object.keys(BRANDS).map(function (k) { return BRANDS[k]; }).filter(function (x) { return x.match.test(store); })[0];
+    if (b) { var card = document.getElementById("card"); card.classList.add("brand"); card.style.setProperty("--c1", b.c1); card.style.setProperty("--c2", b.c2); document.getElementById("logo").src = b.logo; }
     if (!id) { document.getElementById("error").hidden = false; return; }
     if (store) { document.getElementById("store").textContent = store; document.title = "Carné · " + store; }
     document.getElementById("cid").textContent = "#" + id;
